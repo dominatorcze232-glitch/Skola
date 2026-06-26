@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Monitor Zaměstnanců</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
+
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-cols-2">
+                <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    💼 StaffSync
+                </span>
+            </div>
+            <button id="btnToggleStaffModal" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl transition shadow-sm hover:shadow flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Spravovat zaměstnance
+            </button>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 mt-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-slate-900">Aktuální přehled aktivit</h1>
+            <div id="liveClock" class="text-lg font-semibold bg-slate-200 text-slate-700 px-4 py-1.5 rounded-full shadow-inner">
+                00:00:00
+            </div>
+        </div>
+
+        <div id="staffGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full text-center py-12 text-slate-400">Načítám data nebo žádní zaměstnanci neexistují...</div>
+        </div>
+    </main>
+
+    <div id="staffModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden transform scale-95 transition-all">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h2 class="text-xl font-bold text-slate-900">Správa zaměstnanců</h2>
+                <button id="btnCloseStaffModal" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+            </div>
+            
+            <form id="addStaffForm" class="p-6 border-b border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-3 bg-indigo-50/50">
+                <input type="text" id="staffTitle" placeholder="Titul (např. Mgr.)" class="w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <input type="text" id="staffFirstName" placeholder="Jméno" required class="w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <div class="flex gap-2">
+                    <input type="text" id="staffLastName" placeholder="Příjmení" required class="w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 flex-grow">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 rounded-xl font-medium transition">+</button>
+                </div>
+            </form>
+
+            <div id="staffModalList" class="p-6 overflow-y-auto flex-grow space-y-3">
+                </div>
+        </div>
+    </div>
+
+    <div id="scheduleModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Upravit rozvrh</h2>
+                    <p id="scheduleModalTarget" class="text-sm text-slate-500 font-medium"></p>
+                </div>
+                <button id="btnCloseScheduleModal" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+            </div>
+
+            <form id="addIntervalForm" class="p-6 border-b border-slate-100 space-y-3 bg-amber-50/30">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Od</label>
+                        <input type="time" id="intFrom" required class="w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Do</label>
+                        <input type="time" id="intTo" required class="w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Název hodiny / Činnost</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="intSubject" placeholder="Např. Matematika, Porada..." required class="w-full px-3 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white px-5 rounded-xl font-medium transition">Přidat</button>
+                    </div>
+                </div>
+            </form>
+
+            <div id="intervalsList" class="p-6 overflow-y-auto flex-grow space-y-2">
+                </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Tvoje Firebase konfigurace
+        const firebaseConfig = {
+            apiKey: "AIzaSyAudOM7Kr2lJuUTVWwpIZ5OULLwWWX0530",
+            authDomain: "skola-a77c6.firebaseapp.com",
+            projectId: "skola-a77c6",
+            storageBucket: "skola-a77c6.firebasestorage.app",
+            messagingSenderId: "946927633510",
+            appId: "1:946927633510:web:a288c577047ce78ddd59a7",
+            measurementId: "G-JF2PWM4FGZ"
+        };
+
+        // Inicializace
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const staffCollection = collection(db, "zamestnanci");
+
+        // Lokální stav pro uložení dat z DB
+        let localStaffData = [];
+        let activeStaffIdForSchedule = null;
+
+        // DOM Elementy
+        const staffGrid = document.getElementById('staffGrid');
+        const staffModal = document.getElementById('staffModal');
+        const scheduleModal = document.getElementById('scheduleModal');
+        const staffModalList = document.getElementById('staffModalList');
+        const intervalsList = document.getElementById('intervalsList');
+        const scheduleModalTarget = document.getElementById('scheduleModalTarget');
+
+        // Hodiny běžící každou sekundu
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('liveClock').innerText = now.toTimeString().split(' ')[0];
+            // Aktualizace textů stavu každou sekundu, aby se nápis změnil přesně v daný čas
+            updateStaffStatuses();
+        }, 1000);
+
+        // Pomocná funkce: Převede "HH:MM" na minuty od začátku dne pro snadné porovnání
+        function timeToMinutes(timeStr) {
+            const [h, m] = timeStr.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        // Zjištění aktuálního stavu na základě rozvrhu
+        function getCurrentStatus(intervals) {
+            if (!intervals || intervals.length === 0) return { text: "Volno / Žádný rozvrh", active: false };
+
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+            // 1. Zkontrolujeme, jestli zrovna teď probíhá nějaká hodina
+            const currentLesson = intervals.find(int => {
+                const start = timeToMinutes(int.from);
+                const end = timeToMinutes(int.to);
+                return currentMinutes >= start && currentMinutes < end;
+            });
+
+            if (currentLesson) {
+                return { text: currentLesson.subject, active: true };
+            }
+
+            // 2. Pokud neprobíhá hodina, ale jsme uvnitř celkového bloku dne (mezi prvním startem a posledním koncem), je to Přestávka
+            const starts = intervals.map(int => timeToMinutes(int.from));
+            const ends = intervals.map(int => timeToMinutes(int.to));
+            const firstStart = Math.min(...starts);
+            const lastEnd = Math.max(...ends);
+
+            if (currentMinutes >= firstStart && currentMinutes < lastEnd) {
+                return { text: "☕ Přestávka", active: false, isBreak: true };
+            }
+
+            return { text: "Mimo pracovní dobu", active: false };
+        }
+
+        // Posluchač na databázi - Realtime update
+        onSnapshot(staffCollection, (snapshot) => {
+            localStaffData = [];
+            snapshot.forEach(doc => {
+                localStaffData.push({ id: doc.id, ...doc.data() });
+            });
+            renderMainGrid();
+            renderModalStaffList();
+            if (activeStaffIdForSchedule) {
+                renderIntervalsList();
+            }
+        });
+
+        // Vykreslení hlavních karet na ploše
+        function renderMainGrid() {
+            if (localStaffData.length === 0) {
+                staffGrid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 bg-white rounded-2xl border border-dashed border-slate-200">Zatím zde nejsou žádní zaměstnanci. Přidejte je pomocí tlačítka nahoře! ✨</div>`;
+                return;
+            }
+
+            staffGrid.innerHTML = localStaffData.map(person => {
+                const status = getCurrentStatus(person.intervals);
+                let statusClass = "bg-slate-100 text-slate-600";
+                
+                if (status.active) statusClass = "bg-emerald-500 text-white animate-pulse";
+                else if (status.isBreak) statusClass = "bg-amber-500 text-white";
+
+                const titleHtml = person.title ? `<span class="text-xs font-semibold bg-slate-200 text-slate-600 px-2 py-0.5 rounded mr-1">${person.title}</span>` : '';
+
+                return `
+                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition duration-200">
+                        <div>
+                            <div class="flex items-start justify-between mb-4">
+                                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-1">
+                                    ${titleHtml} ${person.firstName} ${person.lastName}
+                                </h3>
+                            </div>
+                            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Aktuální stav</div>
+                            <div id="status-text-${person.id}" class="text-base font-semibold px-4 py-3 rounded-xl ${statusClass} transition-all duration-300 shadow-inner">
+                                ${status.text}
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-50 text-xs text-slate-400 flex justify-between items-center">
+                            <span>Naplánováno úseků: ${person.intervals ? person.intervals.length : 0}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Periodická aktualizace textů (spouštěná z setInterval hodin)
+        function updateStaffStatuses() {
+            localStaffData.forEach(person => {
+                const statusEl = document.getElementById(`status-text-${person.id}`);
+                if (statusEl) {
+                    const status = getCurrentStatus(person.intervals);
+                    statusEl.innerText = status.text;
+                    
+                    // Reset tříd a nastavení správných barev podle stavu
+                    statusEl.className = "text-base font-semibold px-4 py-3 rounded-xl transition-all duration-300 shadow-inner";
+                    if (status.active) {
+                        statusEl.classList.add("bg-emerald-500", "text-white", "animate-pulse");
+                    } else if (status.isBreak) {
+                        statusEl.classList.add("bg-amber-500", "text-white");
+                    } else {
+                        statusEl.classList.add("bg-slate-100", "text-slate-600");
+                    }
+                }
+            });
+        }
+
+        // Vykreslení seznamu zaměstnanců v modálu pro správu
+        function renderModalStaffList() {
+            if (localStaffData.length === 0) {
+                staffModalList.innerHTML = `<p class="text-center text-slate-400 text-sm">Žádná data k zobrazení</p>`;
+                return;
+            }
+
+            staffModalList.innerHTML = localStaffData.map(person => `
+                <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span class="font-medium">${person.title ? person.title + ' ' : ''}${person.firstName} ${person.lastName}</span>
+                    <div class="flex gap-2">
+                        <button onclick="openScheduleModal('${person.id}')" class="bg-amber-500 hover:bg-amber-600 text-white text-xs px-3 py-1.5 rounded-lg transition font-medium">✏️ Rozvrh / Úpravit</button>
+                        <button onclick="deleteStaff('${person.id}')" class="bg-rose-500 hover:bg-rose-600 text-white text-xs px-3 py-1.5 rounded-lg transition font-medium">Smazat</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Vykreslení úseků v modálu rozvrhu
+        window.renderIntervalsList = function() {
+            const person = localStaffData.find(p => p.id === activeStaffIdForSchedule);
+            if (!person) return;
+
+            scheduleModalTarget.innerText = `Zaměstnanec: ${person.title ? person.title + ' ' : ''}${person.firstName} ${person.lastName}`;
+
+            const intervals = person.intervals || [];
+            if (intervals.length === 0) {
+                intervalsList.innerHTML = `<p class="text-center text-slate-400 text-sm py-4">Tento zaměstnanec zatím nemá žádné časové úseky.</p>`;
+                return;
+            }
+
+            // Seřadit úseky podle času, ať je v tom pořádek
+            intervals.sort((a,b) => timeToMinutes(a.from) - timeToMinutes(b.from));
+
+            intervalsList.innerHTML = intervals.map((int, index) => `
+                <div class="flex items-center justify-between bg-slate-50 border border-slate-100 p-3 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <span class="bg-indigo-100 text-indigo-700 font-bold px-2 py-1 rounded text-xs">${int.from} - ${int.to}</span>
+                        <span class="font-semibold text-slate-700">${int.subject}</span>
+                    </div>
+                    <button onclick="deleteInterval(${index})" class="text-rose-500 hover:text-rose-700 font-bold text-sm px-2">&times;</button>
+                </div>
+            `).join('');
+        }
+
+        // FIREBASE OPERACE (Navázání na globální window objekt pro inline onclick atributy v HTML)
+        
+        // Přidání zaměstnance
+        document.getElementById('addStaffForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('staffTitle').value.trim();
+            const firstName = document.getElementById('staffFirstName').value.trim();
+            const lastName = document.getElementById('staffLastName').value.trim();
+
+            await addDoc(staffCollection, {
+                title, firstName, lastName, intervals: []
+            });
+
+            document.getElementById('addStaffForm').reset();
+        });
+
+        // Smazání zaměstnance
+        window.deleteStaff = async function(id) {
+            if(confirm("Opravdu chcete smazat tohoto zaměstnance?")) {
+                await deleteDoc(doc(db, "zamestnanci", id));
+            }
+        };
+
+        // Otevření okna s rozvrhem
+        window.openScheduleModal = function(id) {
+            activeStaffIdForSchedule = id;
+            renderIntervalsList();
+            scheduleModal.classList.remove('hidden');
+        };
+
+        // Přidání časového úseku do rozvrhu
+        document.getElementById('addIntervalForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!activeStaffIdForSchedule) return;
+
+            const from = document.getElementById('intFrom').value;
+            const to = document.getElementById('intTo').value;
+            const subject = document.getElementById('intSubject').value.trim();
+
+            if (timeToMinutes(from) >= timeToMinutes(to)) {
+                alert("Čas 'Od' musí být dříve než čas 'Do'!");
+                return;
+            }
+
+            const person = localStaffData.find(p => p.id === activeStaffIdForSchedule);
+            const currentIntervals = person.intervals || [];
+
+            const newInterval = { from, to, subject };
+            const updatedIntervals = [...currentIntervals, newInterval];
+
+            await updateDoc(doc(db, "zamestnanci", activeStaffIdForSchedule), {
+                intervals: updatedIntervals
+            });
+
+            document.getElementById('addIntervalForm').reset();
+        });
+
+        // Smazání jednoho časového úseku
+        window.deleteInterval = async function(index) {
+            if (!activeStaffIdForSchedule) return;
+            const person = localStaffData.find(p => p.id === activeStaffIdForSchedule);
+            let currentIntervals = [...(person.intervals || [])];
+            
+            currentIntervals.splice(index, 1);
+
+            await updateDoc(doc(db, "zamestnanci", activeStaffIdForSchedule), {
+                intervals: currentIntervals
+            });
+        };
+
+        // Otvírání / Zavírání modálů
+        document.getElementById('btnToggleStaffModal').addEventListener('click', () => staffModal.classList.remove('hidden'));
+        document.getElementById('btnCloseStaffModal').addEventListener('click', () => staffModal.classList.add('hidden'));
+        document.getElementById('btnCloseScheduleModal').addEventListener('click', () => {
+            scheduleModal.classList.add('hidden');
+            activeStaffIdForSchedule = null;
+        });
+
+        // Zavření kliknutím mimo okno modálu
+        window.addEventListener('click', (e) => {
+            if (e.target === staffModal) staffModal.classList.add('hidden');
+            if (e.target === scheduleModal) {
+                scheduleModal.classList.add('hidden');
+                activeStaffIdForSchedule = null;
+            }
+        });
+    </script>
+</body>
+</html>
