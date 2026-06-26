@@ -5,147 +5,152 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StaffSync - Interní Systém</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-24">
 
-    <div id="loginScreen" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[100] px-4 transition-opacity duration-500">
-        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border border-slate-100 text-center transform transition-all">
-            <div class="w-20 h-20 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-6 text-4xl">💼</div>
-            <h1 class="text-3xl font-extrabold text-slate-900 mb-2">StaffSync</h1>
-            <p class="text-slate-400 mb-8">Vítejte zpět! Pro vstup zadejte heslo.</p>
+    <div id="loginScreen" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[100] px-4 transition-all duration-500">
+        <div class="bg-white p-10 rounded-[2.5rem] shadow-2xl w-full max-w-md border border-slate-100 text-center">
+            <div class="w-24 h-24 bg-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-8 text-5xl shadow-xl shadow-indigo-200 text-white">💼</div>
+            <h1 class="text-4xl font-black text-slate-900 mb-2">StaffSync</h1>
+            <p class="text-slate-400 font-medium mb-10">Zadejte heslo pro vstup</p>
             <form id="loginForm" class="space-y-4">
-                <input type="password" id="loginPassword" placeholder="Zadejte heslo..." required 
-                    class="w-full px-6 py-4 border-2 border-slate-100 text-center text-2xl tracking-[0.5em] rounded-2xl focus:outline-none focus:border-indigo-500 transition-all">
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl transition shadow-lg active:scale-[0.98]">
-                    Vstoupit do aplikace
+                <input type="password" id="loginPassword" placeholder="••••" required 
+                    class="w-full px-6 py-5 border-none bg-slate-100 text-center text-3xl tracking-[0.3em] rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/20 transition-all font-black">
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-5 rounded-2xl transition shadow-lg active:scale-95 text-lg">
+                    Přihlásit se
                 </button>
-                <p id="loginError" class="text-sm text-rose-500 hidden font-bold animate-bounce">❌ Neplatné heslo</p>
+                <p id="loginError" class="text-sm text-rose-500 hidden font-bold mt-4 italic">Nesprávné přístupové heslo!</p>
             </form>
         </div>
     </div>
 
-    <div id="appContent" class="hidden opacity-0 transition-opacity duration-700">
-        <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40">
-            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <div id="appContent" class="hidden opacity-0 transition-all duration-700">
+        <nav class="glass border-b border-slate-200 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <span class="text-2xl font-black text-indigo-600 tracking-tight">StaffSync</span>
-                    <span id="roleBadge" class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm"></span>
+                    <span class="text-2xl font-black text-slate-900">Staff<span class="text-indigo-600">Sync</span></span>
+                    <span id="roleBadge" class="text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-sm"></span>
                 </div>
-                <div class="flex items-center gap-2 md:gap-4">
-                    <button id="btnReportProblem" class="text-rose-600 bg-rose-50 hover:bg-rose-100 font-bold px-4 py-2 rounded-xl transition text-xs flex items-center gap-2">
-                        <span>⚠️ Nahlásit</span>
+                <div class="flex items-center gap-3">
+                    <button id="btnReportProblem" class="text-rose-600 bg-rose-50 hover:bg-rose-100 font-black px-5 py-2.5 rounded-2xl transition text-xs flex items-center gap-2">
+                        <span>⚠️ NAHLÁSIT</span>
                     </button>
-                    <button id="btnToggleStaffModal" class="hidden bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl transition text-xs">
-                        Správa týmu
+                    <button id="btnToggleStaffModal" class="hidden bg-slate-900 hover:bg-slate-800 text-white font-black px-5 py-2.5 rounded-2xl transition text-xs uppercase tracking-wider">
+                        Tým & Správa
                     </button>
-                    <button id="btnLogout" class="bg-slate-100 text-slate-600 hover:bg-slate-200 p-2 rounded-xl transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                    <button id="btnLogout" class="bg-white border border-slate-200 text-slate-400 hover:text-slate-900 p-2.5 rounded-2xl transition shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                     </button>
                 </div>
             </div>
         </nav>
 
-        <main class="max-w-7xl mx-auto px-4 mt-10">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+        <main class="max-w-7xl mx-auto px-6 mt-12">
+            <div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
                 <div>
-                    <h1 id="viewTitle" class="text-3xl font-black text-slate-900">Přehled</h1>
-                    <p class="text-slate-500 font-medium">Sledujte aktuální dění v reálném čase</p>
+                    <p id="welcomeUser" class="text-indigo-600 font-black text-xs uppercase tracking-[0.3em] mb-2"></p>
+                    <h1 id="viewTitle" class="text-5xl font-black text-slate-900 tracking-tight">Dashboard</h1>
                 </div>
-                <div id="liveClock" class="text-xl font-mono font-black bg-white border border-slate-200 text-indigo-600 px-6 py-3 rounded-2xl shadow-sm">00:00:00</div>
+                <div id="liveClock" class="text-2xl font-black bg-white border-2 border-slate-100 text-slate-900 px-8 py-4 rounded-[2rem] shadow-xl shadow-slate-200/50">00:00:00</div>
             </div>
 
-            <div id="staffGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                </div>
+            <div id="staffGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
         </main>
 
-        <button id="btnOpenChat" class="fixed bottom-8 right-8 bg-indigo-600 hover:bg-indigo-700 text-white p-5 rounded-3xl shadow-2xl transition-all z-40 active:scale-90 group">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-            <span id="chatBadge" class="absolute -top-2 -right-2 bg-rose-500 text-white font-black text-[10px] w-6 h-6 rounded-full flex items-center justify-center hidden border-4 border-slate-50">0</span>
+        <button id="btnOpenChat" class="fixed bottom-10 right-10 bg-indigo-600 hover:bg-indigo-700 text-white p-6 rounded-[2.5rem] shadow-2xl transition-all z-40 active:scale-90 hover:rotate-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            <span id="chatBadge" class="absolute -top-1 -right-1 bg-rose-500 text-white font-black text-xs w-7 h-7 rounded-full flex items-center justify-center hidden border-4 border-slate-50">0</span>
         </button>
     </div>
 
-    <div id="staffModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
-            <div class="p-8 border-b flex justify-between items-center bg-slate-50/50">
-                <h2 class="text-2xl font-black text-slate-900">Tým</h2>
-                <button onclick="closeModal('staffModal')" class="text-slate-400 hover:text-slate-900 text-3xl font-light">&times;</button>
+    <div id="staffModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md hidden flex items-center justify-center z-50 p-6">
+        <div class="bg-white rounded-[3rem] shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden border border-white/20">
+            <div class="p-10 border-b flex justify-between items-center bg-slate-50/80">
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">Správa týmu</h2>
+                <button onclick="closeModal('staffModal')" class="text-slate-300 hover:text-slate-900 text-5xl font-light transition">&times;</button>
             </div>
-            <form id="addStaffForm" class="p-8 border-b grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <input type="text" id="staffTitle" placeholder="Titul" class="px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500">
-                <input type="text" id="staffFirstName" placeholder="Jméno" required class="px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500">
-                <input type="text" id="staffLastName" placeholder="Příjmení" required class="px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500">
-                <div class="flex gap-2">
-                    <input type="text" id="staffPassword" placeholder="Přihlašovací heslo" required class="px-4 py-3 bg-indigo-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 flex-grow font-bold">
-                    <button type="submit" class="bg-indigo-600 text-white px-6 rounded-xl font-black hover:bg-indigo-700 transition">+</button>
-                </div>
-            </form>
-            <div id="staffModalList" class="p-8 overflow-y-auto space-y-4 hide-scrollbar"></div>
+            
+            <div class="p-10 border-b bg-indigo-50/30">
+                <p class="text-xs font-black text-indigo-400 uppercase tracking-widest mb-4">Nový zaměstnanec</p>
+                <form id="addStaffForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input type="text" id="staffTitle" placeholder="Titul (Mgr.)" class="px-5 py-4 bg-white border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 font-bold shadow-sm">
+                    <input type="text" id="staffFirstName" placeholder="Jméno" required class="px-5 py-4 bg-white border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 font-bold shadow-sm">
+                    <input type="text" id="staffLastName" placeholder="Příjmení" required class="px-5 py-4 bg-white border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 font-bold shadow-sm">
+                    <input type="text" id="staffPassword" placeholder="Přihlašovací heslo" required class="px-5 py-4 bg-white border-none rounded-2xl focus:ring-2 focus:ring-indigo-600 font-black shadow-sm text-indigo-600">
+                    <button type="submit" class="sm:col-span-2 bg-indigo-600 text-white py-5 rounded-2xl font-black hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">
+                        PŘIDAT DO DATABÁZE
+                    </button>
+                </form>
+            </div>
+            
+            <div id="staffModalList" class="p-10 overflow-y-auto space-y-4 hide-scrollbar flex-grow"></div>
         </div>
     </div>
 
-    <div id="scheduleModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden">
-            <div class="p-8 border-b flex justify-between items-center bg-slate-50/50">
+    <div id="scheduleModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md hidden flex items-center justify-center z-50 p-6">
+        <div class="bg-white rounded-[3rem] shadow-2xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden">
+            <div class="p-10 border-b flex justify-between items-center bg-slate-50/80">
                 <div>
-                    <h2 class="text-2xl font-black text-slate-900">Rozvrh</h2>
-                    <p id="scheduleModalTarget" class="text-indigo-600 font-bold"></p>
+                    <h2 class="text-3xl font-black text-slate-900">Rozvrh</h2>
+                    <p id="scheduleModalTarget" class="text-indigo-600 font-black uppercase text-xs tracking-widest mt-1"></p>
                 </div>
-                <button onclick="closeModal('scheduleModal')" class="text-slate-400 hover:text-slate-900 text-3xl font-light">&times;</button>
+                <button onclick="closeModal('scheduleModal')" class="text-slate-300 hover:text-slate-900 text-5xl font-light">&times;</button>
             </div>
-            <form id="addIntervalForm" class="p-8 border-b space-y-4">
+            <form id="addIntervalForm" class="p-10 border-b space-y-4 bg-amber-50/20">
                 <div class="grid grid-cols-2 gap-4">
-                    <input type="time" id="intFrom" required class="px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-500">
-                    <input type="time" id="intTo" required class="px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-500">
+                    <input type="time" id="intFrom" required class="px-5 py-4 bg-white border-none rounded-2xl shadow-sm focus:ring-2 focus:ring-amber-500 font-bold">
+                    <input type="time" id="intTo" required class="px-5 py-4 bg-white border-none rounded-2xl shadow-sm focus:ring-2 focus:ring-amber-500 font-bold">
                 </div>
-                <div class="flex gap-2">
-                    <input type="text" id="intSubject" placeholder="Název hodiny / Činnost" required class="px-4 py-3 bg-amber-50 border-none rounded-xl focus:ring-2 focus:ring-amber-500 flex-grow">
-                    <button type="submit" class="bg-amber-500 text-white px-6 rounded-xl font-black hover:bg-amber-600 transition">Přidat</button>
+                <div class="flex gap-3">
+                    <input type="text" id="intSubject" placeholder="Např. Čeština, Porada..." required class="flex-grow px-5 py-4 bg-white border-none rounded-2xl shadow-sm focus:ring-2 focus:ring-amber-500 font-bold">
+                    <button type="submit" class="bg-amber-500 text-white px-8 rounded-2xl font-black hover:bg-amber-600 transition shadow-lg shadow-amber-100">PŘIDAT</button>
                 </div>
             </form>
-            <div id="intervalsList" class="p-8 overflow-y-auto space-y-3 hide-scrollbar"></div>
+            <div id="intervalsList" class="p-10 overflow-y-auto space-y-3 hide-scrollbar"></div>
         </div>
     </div>
 
-    <div id="chatModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-5xl h-[85vh] flex overflow-hidden">
-            <div class="w-80 border-r border-slate-100 flex flex-col bg-slate-50/50">
-                <div class="p-6 border-b flex justify-between items-center bg-white">
-                    <h2 class="font-black text-slate-900">Konverzace</h2>
-                    <button id="btnNewChat" class="bg-indigo-600 text-white p-2 rounded-xl hover:bg-indigo-700 transition">💬</button>
+    <div id="chatModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md hidden flex items-center justify-center z-50 p-6">
+        <div class="bg-white rounded-[3rem] shadow-2xl w-full max-w-5xl h-[85vh] flex overflow-hidden">
+            <div class="w-80 border-r flex flex-col bg-slate-50/50">
+                <div class="p-8 border-b flex justify-between items-center bg-white">
+                    <h2 class="font-black text-slate-900 text-xl tracking-tight">Zprávy</h2>
+                    <button id="btnNewChat" class="bg-indigo-600 text-white w-10 h-10 rounded-xl hover:bg-indigo-700 transition flex items-center justify-center font-bold shadow-lg shadow-indigo-100">💬</button>
                 </div>
                 <div id="chatThreadsList" class="flex-grow overflow-y-auto p-4 space-y-2 hide-scrollbar"></div>
             </div>
             <div id="chatActiveWindow" class="flex-grow flex flex-col bg-white hidden">
-                <div class="p-6 border-b flex justify-between items-center bg-slate-50/30">
-                    <h3 id="activeChatPartnerName" class="font-black text-slate-800 text-lg">Chat</h3>
-                    <button onclick="closeModal('chatModal')" class="text-slate-400 text-3xl font-light">&times;</button>
+                <div class="p-8 border-b flex justify-between items-center bg-slate-50/30">
+                    <h3 id="activeChatPartnerName" class="font-black text-slate-900 text-xl tracking-tight italic">Chat</h3>
+                    <button onclick="closeModal('chatModal')" class="text-slate-300 hover:text-slate-900 text-5xl font-light">&times;</button>
                 </div>
-                <div id="chatMessagesBox" class="flex-grow overflow-y-auto p-8 space-y-4 flex flex-col hide-scrollbar"></div>
-                <form id="chatSendForm" class="p-6 border-t flex gap-3">
-                    <input type="text" id="chatInputMessage" placeholder="Napište zprávu..." required class="flex-grow px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-medium">
-                    <button type="submit" class="bg-indigo-600 text-white px-8 rounded-2xl font-black hover:bg-indigo-700 transition">Odeslat</button>
+                <div id="chatMessagesBox" class="flex-grow overflow-y-auto p-10 space-y-6 flex flex-col hide-scrollbar"></div>
+                <form id="chatSendForm" class="p-8 border-t flex gap-4">
+                    <input type="text" id="chatInputMessage" placeholder="Napište zprávu..." required class="flex-grow px-6 py-5 bg-slate-50 border-none rounded-3xl focus:ring-4 focus:ring-indigo-500/10 font-bold text-slate-700">
+                    <button type="submit" class="bg-indigo-600 text-white px-10 rounded-3xl font-black hover:bg-indigo-700 transition shadow-xl shadow-indigo-100">ODESLAT</button>
                 </form>
             </div>
-            <div id="chatEmptyWindow" class="flex-grow flex flex-col items-center justify-center text-center p-12 bg-white relative">
-                <div class="text-6xl mb-4 opacity-20">📮</div>
-                <p class="text-slate-400 font-bold max-w-xs">Vyberte někoho ze seznamu a začněte si psát.</p>
-                <button onclick="closeModal('chatModal')" class="absolute top-6 right-8 text-slate-400 text-3xl font-light">&times;</button>
+            <div id="chatEmptyWindow" class="flex-grow flex flex-col items-center justify-center text-center p-16 bg-white relative">
+                <div class="text-8xl mb-8 animate-bounce">📮</div>
+                <p class="text-slate-300 font-black text-2xl max-w-xs leading-tight uppercase italic tracking-tighter">Vyberte si parťáka a začněte psát!</p>
+                <button onclick="closeModal('chatModal')" class="absolute top-10 right-10 text-slate-300 hover:text-slate-900 text-5xl font-light">&times;</button>
             </div>
         </div>
     </div>
 
-    <div id="newChatModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center z-[60] p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8">
-            <h3 class="font-black text-xl text-slate-900 mb-6 text-center">Komu napíšete?</h3>
-            <select id="newChatUserSelect" class="w-full px-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 mb-6 font-bold text-slate-700 cursor-pointer"></select>
-            <div class="grid grid-cols-2 gap-3">
-                <button onclick="closeModal('newChatModal')" class="px-4 py-3 text-slate-400 font-bold hover:bg-slate-50 rounded-2xl transition text-sm">Zrušit</button>
-                <button id="btnStartChatConfirm" class="px-4 py-3 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-700 transition shadow-lg text-sm">Začít chat</button>
+    <div id="newChatModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-[60] p-6">
+        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-sm p-10 text-center">
+            <h3 class="font-black text-2xl text-slate-900 mb-8">Napsat někomu</h3>
+            <select id="newChatUserSelect" class="w-full px-6 py-5 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-indigo-500/10 mb-8 font-black text-slate-700 cursor-pointer"></select>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="closeModal('newChatModal')" class="px-4 py-4 text-slate-400 font-black hover:bg-slate-50 rounded-2xl transition">ZRUŠIT</button>
+                <button id="btnStartChatConfirm" class="px-4 py-4 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-700 transition shadow-xl">ZAČÍT</button>
             </div>
         </div>
     </div>
@@ -155,7 +160,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase konfigurace (stále tvoje)
         const firebaseConfig = {
             apiKey: "AIzaSyAudOM7Kr2lJuUTVWwpIZ5OULLwWWX0530",
             authDomain: "skola-a77c6.firebaseapp.com",
@@ -177,13 +181,10 @@
         let activeStaffIdForSchedule = null;
         let activeChatThreadId = null;
 
-        // --- PŘÍPRAVA DAT (Načítají se hned po startu) ---
+        // --- NAČTENÍ DAT ---
         onSnapshot(staffCollection, (snapshot) => {
             localStaffData = [];
             snapshot.forEach(doc => { localStaffData.push({ id: doc.id, ...doc.data() }); });
-            console.log("Data načtena, počet zaměstnanců:", localStaffData.length);
-            
-            // Pokud jsme už přihlášeni, překresli UI
             if(currentUser) {
                 renderMainGrid();
                 renderModalStaffList();
@@ -191,7 +192,7 @@
             }
         });
 
-        // --- AUTH ---
+        // --- PŘIHLAŠOVÁNÍ ---
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
             const pass = document.getElementById('loginPassword').value.trim();
@@ -223,16 +224,18 @@
             }, 500);
 
             const badge = document.getElementById('roleBadge');
+            const welcome = document.getElementById('welcomeUser');
+            welcome.innerText = `Vítejte, ${currentUser.name}`;
+
             if (currentUser.role === 'admin') {
-                badge.innerText = "Admin Account";
-                badge.classList.add('bg-indigo-600', 'text-white');
+                badge.innerText = "ADMINISTRÁTOR";
+                badge.classList.add('bg-slate-900', 'text-white');
                 document.getElementById('btnToggleStaffModal').classList.remove('hidden');
             } else {
-                badge.innerText = "Team Member";
-                badge.classList.add('bg-emerald-500', 'text-white');
+                badge.innerText = "ZAMĚSTNANEC";
+                badge.classList.add('bg-indigo-600', 'text-white');
             }
 
-            // Realtime zprávy
             const qMessages = query(messagesCollection, orderBy("timestamp", "asc"));
             onSnapshot(qMessages, (snapshot) => {
                 localChatsData = [];
@@ -248,7 +251,7 @@
 
         document.getElementById('btnLogout').addEventListener('click', () => location.reload());
 
-        // --- ČASOVÁ LOGIKA ---
+        // --- ČAS & STATUS ---
         setInterval(() => {
             const now = new Date();
             document.getElementById('liveClock').innerText = now.toTimeString().split(' ')[0];
@@ -262,65 +265,61 @@
         }
 
         function getCurrentStatus(intervals) {
-            if (!intervals || intervals.length === 0) return { text: "Volno", active: false };
+            if (!intervals || intervals.length === 0) return { text: "VOLNO", active: false };
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-            const currentLesson = intervals.find(int => {
-                const start = timeToMinutes(int.from);
-                const end = timeToMinutes(int.to);
-                return currentMinutes >= start && currentMinutes < end;
+            const lesson = intervals.find(i => {
+                const s = timeToMinutes(i.from);
+                const e = timeToMinutes(i.to);
+                return currentMinutes >= s && currentMinutes < e;
             });
 
-            if (currentLesson) return { text: currentLesson.subject, active: true };
+            if (lesson) return { text: lesson.subject, active: true };
 
-            const starts = intervals.map(int => timeToMinutes(int.from));
-            const ends = intervals.map(int => timeToMinutes(int.to));
-            const firstStart = Math.min(...starts);
-            const lastEnd = Math.max(...ends);
+            const starts = intervals.map(i => timeToMinutes(i.from));
+            const ends = intervals.map(i => timeToMinutes(i.to));
+            const first = Math.min(...starts);
+            const last = Math.max(...ends);
 
-            if (currentMinutes >= firstStart && currentMinutes < lastEnd) {
-                return { text: "☕ Přestávka", active: false, isBreak: true };
-            }
-            return { text: "Domů / Konec", active: false };
+            if (currentMinutes >= first && currentMinutes < last) return { text: "☕ PŘESTÁVKA", active: false, isBreak: true };
+            return { text: "PO PRÁCI", active: false };
         }
 
-        // --- RENDEROVÁNÍ PLOCHY ---
+        // --- DASHBOARD ---
         function renderMainGrid() {
             const grid = document.getElementById('staffGrid');
-            let usersToRender = currentUser.role === 'staff' ? localStaffData.filter(u => u.id === currentUser.id) : localStaffData;
+            let users = currentUser.role === 'staff' ? localStaffData.filter(u => u.id === currentUser.id) : localStaffData;
 
-            grid.innerHTML = usersToRender.map(person => {
-                const status = getCurrentStatus(person.intervals);
-                let statusClass = "bg-slate-100 text-slate-400";
-                if (status.active) statusClass = "bg-emerald-500 text-white shadow-emerald-200 animate-pulse";
-                else if (status.isBreak) statusClass = "bg-amber-500 text-white shadow-amber-200";
+            grid.innerHTML = users.map(p => {
+                const s = getCurrentStatus(p.intervals);
+                let sc = "bg-slate-100 text-slate-300";
+                if (s.active) sc = "bg-emerald-500 text-white shadow-emerald-200 animate-pulse";
+                else if (s.isBreak) sc = "bg-amber-500 text-white shadow-amber-200";
 
-                const titleHtml = person.title ? `<span class="text-[10px] font-black bg-slate-100 text-slate-500 px-2 py-1 rounded mr-2 uppercase">${person.title}</span>` : '';
-                const sortedInts = person.intervals ? [...person.intervals].sort((a,b) => timeToMinutes(a.from) - timeToMinutes(b.from)) : [];
-                
+                const sorted = p.intervals ? [...p.intervals].sort((a,b) => timeToMinutes(a.from)-timeToMinutes(b.from)) : [];
                 return `
-                    <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col transition hover:scale-[1.02]">
-                        <div class="flex items-center gap-3 mb-6">
-                            <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 font-black text-xl">
-                                ${person.firstName[0]}${person.lastName[0]}
+                    <div class="bg-white rounded-[3rem] p-10 shadow-2xl shadow-slate-200/50 border border-slate-100 transition hover:scale-[1.03]">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-16 h-16 bg-slate-900 rounded-[1.5rem] flex items-center justify-center text-white font-black text-2xl shadow-lg">
+                                ${p.firstName[0]}${p.lastName[0]}
                             </div>
                             <div>
-                                <h3 class="text-xl font-black text-slate-900 leading-tight">${person.firstName} ${person.lastName}</h3>
-                                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">${person.title || 'Člen týmu'}</p>
+                                <h3 class="text-2xl font-black text-slate-900 leading-none">${p.firstName} ${p.lastName}</h3>
+                                <p class="text-indigo-600 text-[10px] font-black uppercase tracking-widest mt-2">${p.title || 'MEMBER'}</p>
                             </div>
                         </div>
-                        <div id="status-text-${person.id}" class="text-center font-black py-4 rounded-2xl ${statusClass} transition-all shadow-lg mb-8 tracking-wide">
-                            ${status.text.toUpperCase()}
+                        <div id="status-text-${p.id}" class="text-center font-black py-5 rounded-[1.5rem] ${sc} transition-all shadow-xl mb-10 tracking-widest text-sm">
+                            ${s.text.toUpperCase()}
                         </div>
-                        <div class="space-y-2">
-                            <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-3">Dnešní program</p>
-                            ${sortedInts.map(i => `
-                                <div class="flex justify-between items-center text-sm font-bold bg-slate-50/50 p-3 rounded-xl border border-slate-50">
+                        <div class="space-y-3">
+                            <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] mb-4">Program</p>
+                            ${sorted.map(i => `
+                                <div class="flex justify-between items-center text-xs font-black bg-slate-50 p-4 rounded-2xl border border-slate-50">
                                     <span class="text-indigo-600">${i.from} - ${i.to}</span>
-                                    <span class="text-slate-600">${i.subject}</span>
+                                    <span class="text-slate-700">${i.subject}</span>
                                 </div>
-                            `).join('') || '<p class="text-slate-300 text-sm italic py-2">Žádný program na dnes</p>'}
+                            `).join('') || '<p class="text-slate-300 text-xs italic font-bold">Dnes bez programu</p>'}
                         </div>
                     </div>
                 `;
@@ -328,36 +327,48 @@
         }
 
         function updateStaffStatuses() {
-            localStaffData.forEach(person => {
-                const statusEl = document.getElementById(`status-text-${person.id}`);
-                if (statusEl) {
-                    const status = getCurrentStatus(person.intervals);
-                    statusEl.innerText = status.text.toUpperCase();
-                    statusEl.className = "text-center font-black py-4 rounded-2xl transition-all shadow-lg mb-8 tracking-wide";
-                    if (status.active) statusEl.classList.add("bg-emerald-500", "text-white", "animate-pulse");
-                    else if (status.isBreak) statusEl.classList.add("bg-amber-500", "text-white");
-                    else statusEl.classList.add("bg-slate-100", "text-slate-400");
-                }
+            localStaffData.forEach(p => {
+                const el = document.getElementById(`status-text-${p.id}`);
+                if (!el) return;
+                const s = getCurrentStatus(p.intervals);
+                el.innerText = s.text.toUpperCase();
+                el.className = "text-center font-black py-5 rounded-[1.5rem] transition-all shadow-xl mb-10 tracking-widest text-sm";
+                if (s.active) el.classList.add("bg-emerald-500", "text-white", "animate-pulse");
+                else if (s.isBreak) el.classList.add("bg-amber-500", "text-white");
+                else el.classList.add("bg-slate-100", "text-slate-300");
             });
         }
 
         // --- MANAGEMENT (ADMIN) ---
+        // OPRAVENÁ FUNKCE PRO UKLÁDÁNÍ
         document.getElementById('addStaffForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            console.log("Pokus o vytvoření účtu...");
+            
             const title = document.getElementById('staffTitle').value.trim();
             const firstName = document.getElementById('staffFirstName').value.trim();
             const lastName = document.getElementById('staffLastName').value.trim();
             const password = document.getElementById('staffPassword').value.trim();
 
-            await addDoc(staffCollection, { title, firstName, lastName, password, intervals: [] });
-            document.getElementById('addStaffForm').reset();
+            try {
+                await addDoc(staffCollection, { 
+                    title, 
+                    firstName, 
+                    lastName, 
+                    password, 
+                    intervals: [] 
+                });
+                console.log("Účet vytvořen!");
+                document.getElementById('addStaffForm').reset();
+            } catch (err) {
+                console.error("Chyba při vytváření účtu:", err);
+                alert("Nepodařilo se vytvořit účet. Zkontrolujte připojení.");
+            }
         });
 
-        window.deleteStaff = async function(id) {
-            if(confirm("Odstranit účet trvale?")) await deleteDoc(doc(db, "zamestnanci", id));
-        };
+        window.deleteStaff = async (id) => { if(confirm("Trvale smazat?")) await deleteDoc(doc(db, "zamestnanci", id)); };
 
-        window.openScheduleModal = function(id) {
+        window.openScheduleModal = (id) => {
             activeStaffIdForSchedule = id;
             renderIntervalsList();
             document.getElementById('scheduleModal').classList.remove('hidden');
@@ -365,56 +376,54 @@
 
         document.getElementById('addIntervalForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const from = document.getElementById('intFrom').value;
-            const to = document.getElementById('intTo').value;
-            const subject = document.getElementById('intSubject').value.trim();
-            if (timeToMinutes(from) >= timeToMinutes(to)) return alert("Chybný čas");
-
-            const person = localStaffData.find(p => p.id === activeStaffIdForSchedule);
-            const updated = [...(person.intervals || []), { from, to, subject }];
-            await updateDoc(doc(db, "zamestnanci", activeStaffIdForSchedule), { intervals: updated });
+            const f = document.getElementById('intFrom').value;
+            const t = document.getElementById('intTo').value;
+            const s = document.getElementById('intSubject').value.trim();
+            const p = localStaffData.find(u => u.id === activeStaffIdForSchedule);
+            const upd = [...(p.intervals || []), { from:f, to:t, subject:s }];
+            await updateDoc(doc(db, "zamestnanci", activeStaffIdForSchedule), { intervals: upd });
             document.getElementById('addIntervalForm').reset();
             renderIntervalsList();
         });
 
-        window.deleteInterval = async function(index) {
-            const person = localStaffData.find(p => p.id === activeStaffIdForSchedule);
-            let ints = [...(person.intervals || [])];
-            ints.splice(index, 1);
+        window.deleteInterval = async (idx) => {
+            const p = localStaffData.find(u => u.id === activeStaffIdForSchedule);
+            let ints = [...(p.intervals || [])];
+            ints.splice(idx, 1);
             await updateDoc(doc(db, "zamestnanci", activeStaffIdForSchedule), { intervals: ints });
             renderIntervalsList();
         };
 
         function renderIntervalsList() {
-            const p = localStaffData.find(p => p.id === activeStaffIdForSchedule);
+            const p = localStaffData.find(u => u.id === activeStaffIdForSchedule);
             document.getElementById('scheduleModalTarget').innerText = `${p.firstName} ${p.lastName}`;
-            const sorted = [...(p.intervals || [])].sort((a,b) => timeToMinutes(a.from) - timeToMinutes(b.from));
-            document.getElementById('intervalsList').innerHTML = sorted.map((int, idx) => `
-                <div class="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <span class="font-bold text-indigo-600">${int.from} - ${int.to} | ${int.subject}</span>
-                    <button onclick="deleteInterval(${idx})" class="text-rose-500 font-black">SMAZAT</button>
+            const s = [...(p.intervals || [])].sort((a,b)=>timeToMinutes(a.from)-timeToMinutes(b.from));
+            document.getElementById('intervalsList').innerHTML = s.map((i, idx) => `
+                <div class="flex items-center justify-between bg-slate-50 p-6 rounded-[1.5rem] border border-slate-100">
+                    <span class="font-black text-indigo-600">${i.from} - ${i.to} | ${i.subject}</span>
+                    <button onclick="deleteInterval(${idx})" class="text-rose-500 font-black text-xs">ODSTRANIT</button>
                 </div>
             `).join('');
         }
 
         function renderModalStaffList() {
-            document.getElementById('staffModalList').innerHTML = localStaffData.map(person => `
-                <div class="flex items-center justify-between bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-                    <span class="font-black">${person.firstName} ${person.lastName}</span>
+            document.getElementById('staffModalList').innerHTML = localStaffData.map(p => `
+                <div class="flex items-center justify-between bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
+                    <span class="font-black text-lg italic">${p.firstName} ${p.lastName}</span>
                     <div class="flex gap-2">
-                        <button onclick="openScheduleModal('${person.id}')" class="bg-amber-500 text-white text-[10px] px-4 py-2 rounded-xl font-black">ROZVRH</button>
-                        <button onclick="deleteStaff('${person.id}')" class="bg-rose-500 text-white text-[10px] px-4 py-2 rounded-xl font-black">SMAZAT</button>
+                        <button onclick="openScheduleModal('${p.id}')" class="bg-amber-500 text-white text-[10px] px-6 py-2.5 rounded-xl font-black transition hover:scale-105">ROZVRH</button>
+                        <button onclick="deleteStaff('${p.id}')" class="bg-rose-500 text-white text-[10px] px-6 py-2.5 rounded-xl font-black transition hover:scale-105">SMAZAT</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        // --- CHAT LOGIKA ---
+        // --- CHAT ---
         function updateSelectUserList() {
             const sel = document.getElementById('newChatUserSelect');
             let opts = [];
             if(currentUser.role === 'staff') {
-                opts.push({id: 'admin', name: '👑 Administrátor'});
+                opts.push({id: 'admin', name: '👑 ADMIN'});
                 localStaffData.filter(u => u.id !== currentUser.id).forEach(u => opts.push({id: u.id, name: `${u.firstName} ${u.lastName}`}));
             } else {
                 localStaffData.forEach(u => opts.push({id: u.id, name: `${u.firstName} ${u.lastName}`}));
@@ -423,33 +432,33 @@
         }
 
         document.getElementById('btnReportProblem').addEventListener('click', async () => {
-            const txt = prompt("Co chcete nahlásit?");
+            const txt = prompt("Co se děje?");
             if(!txt) return;
             await addDoc(messagesCollection, { senderId: currentUser.id, senderName: currentUser.name, receiverId: 'admin', receiverName: 'Administrátor', text: `⚠️ HLÁŠENÍ: ${txt}`, timestamp: Date.now(), readBy: [currentUser.id] });
-            alert("Nahlášeno.");
+            alert("Odesláno adminovi.");
         });
 
-        window.openChatThread = async function(partnerId, partnerName) {
-            activeChatThreadId = partnerId;
+        window.openChatThread = async (pid, pname) => {
+            activeChatThreadId = pid;
             document.getElementById('chatEmptyWindow').classList.add('hidden');
             document.getElementById('chatActiveWindow').classList.remove('hidden');
-            document.getElementById('activeChatPartnerName').innerText = partnerName;
-            renderMessages(partnerId);
+            document.getElementById('activeChatPartnerName').innerText = pname;
+            renderMessages(pid);
 
-            localChatsData.forEach(async (msg) => {
-                if(msg.senderId === partnerId && msg.receiverId === currentUser.id && (!msg.readBy || !msg.readBy.includes(currentUser.id))) {
-                    await updateDoc(doc(db, "zpravy", msg.id), { readBy: [...(msg.readBy || []), currentUser.id] });
+            localChatsData.forEach(async (m) => {
+                if(m.senderId === pid && m.receiverId === currentUser.id && (!m.readBy || !m.readBy.includes(currentUser.id))) {
+                    await updateDoc(doc(db, "zpravy", m.id), { readBy: [...(m.readBy || []), currentUser.id] });
                 }
             });
         };
 
-        function renderMessages(partnerId) {
+        function renderMessages(pid) {
             const box = document.getElementById('chatMessagesBox');
-            const msgs = localChatsData.filter(m => (m.senderId === currentUser.id && m.receiverId === partnerId) || (m.senderId === partnerId && m.receiverId === currentUser.id));
+            const msgs = localChatsData.filter(m => (m.senderId === currentUser.id && m.receiverId === pid) || (m.senderId === pid && m.receiverId === currentUser.id));
             box.innerHTML = msgs.map(m => {
-                const isMe = m.senderId === currentUser.id;
-                return `<div class="max-w-[80%] p-4 rounded-2xl text-sm font-bold shadow-sm ${isMe ? 'bg-indigo-600 text-white self-end rounded-br-none' : 'bg-slate-100 text-slate-800 self-start rounded-bl-none'}">
-                    <p class="text-[8px] opacity-50 mb-1 uppercase">${m.senderName}</p><p>${m.text}</p>
+                const me = m.senderId === currentUser.id;
+                return `<div class="max-w-[75%] p-5 rounded-[1.5rem] text-sm font-bold shadow-sm ${me ? 'bg-indigo-600 text-white self-end rounded-br-none' : 'bg-slate-100 text-slate-800 self-start rounded-bl-none'}">
+                    <p class="text-[8px] opacity-40 mb-1 uppercase font-black">${m.senderName}</p><p>${m.text}</p>
                 </div>`;
             }).join('');
             box.scrollTop = box.scrollHeight;
@@ -469,20 +478,20 @@
                     }
                 }
             });
-            container.innerHTML = Object.values(threads).sort((a,b) => b.timestamp - a.timestamp).map(t => `
-                <div onclick="openChatThread('${t.id}', '${t.name}')" class="p-4 rounded-2xl border cursor-pointer transition flex items-center justify-between ${activeChatThreadId === t.id ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-transparent hover:bg-slate-100'}">
-                    <div class="overflow-hidden"><p class="font-black text-sm text-slate-800 truncate">${t.name}</p><p class="text-[10px] text-slate-400 truncate font-bold">${t.text}</p></div>
-                    ${t.unread ? '<span class="w-3 h-3 bg-rose-500 rounded-full animate-pulse shadow-lg shadow-rose-200"></span>' : ''}
+            container.innerHTML = Object.values(threads).sort((a,b)=>b.timestamp-a.timestamp).map(t => `
+                <div onclick="openChatThread('${t.id}', '${t.name}')" class="p-6 rounded-[1.5rem] border cursor-pointer transition flex items-center justify-between ${activeChatThreadId === t.id ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100 border-indigo-600' : 'bg-white border-transparent hover:bg-slate-200'}">
+                    <div class="overflow-hidden"><p class="font-black text-sm truncate uppercase tracking-tighter">${t.name}</p><p class="text-[10px] opacity-60 truncate font-bold italic">${t.text}</p></div>
+                    ${t.unread ? '<span class="w-3 h-3 bg-rose-500 rounded-full animate-ping"></span>' : ''}
                 </div>
             `).join('');
         }
 
         document.getElementById('chatSendForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const inp = document.getElementById('chatInputMessage');
-            if(!inp.value.trim() || !activeChatThreadId) return;
-            await addDoc(messagesCollection, { senderId: currentUser.id, senderName: currentUser.name, receiverId: activeChatThreadId, receiverName: document.getElementById('activeChatPartnerName').innerText, text: inp.value.trim(), timestamp: Date.now(), readBy: [currentUser.id] });
-            inp.value = '';
+            const i = document.getElementById('chatInputMessage');
+            if(!i.value.trim() || !activeChatThreadId) return;
+            await addDoc(messagesCollection, { senderId: currentUser.id, senderName: currentUser.name, receiverId: activeChatThreadId, receiverName: document.getElementById('activeChatPartnerName').innerText, text: i.value.trim(), timestamp: Date.now(), readBy: [currentUser.id] });
+            i.value = '';
         });
 
         function updateChatBadge() {
@@ -492,6 +501,7 @@
             unread > 0 ? badge.classList.remove('hidden') : badge.classList.add('hidden');
         }
 
+        // --- OVLÁDÁNÍ MODÁLŮ ---
         document.getElementById('btnStartChatConfirm').addEventListener('click', () => {
             const sel = document.getElementById('newChatUserSelect');
             closeModal('newChatModal');
@@ -500,7 +510,12 @@
 
         document.getElementById('btnNewChat').addEventListener('click', () => document.getElementById('newChatModal').classList.remove('hidden'));
         document.getElementById('btnOpenChat').addEventListener('click', () => document.getElementById('chatModal').classList.remove('hidden'));
-        window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); if(id === 'chatModal') activeChatThreadId = null; };
+        document.getElementById('btnToggleStaffModal').addEventListener('click', () => document.getElementById('staffModal').classList.remove('hidden'));
+        
+        window.closeModal = (id) => { 
+            document.getElementById(id).classList.add('hidden'); 
+            if(id === 'chatModal') activeChatThreadId = null; 
+        };
     </script>
 </body>
 </html>
