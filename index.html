@@ -3,153 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Monitor & Chat Zaměstnanců</title>
+    <title>StaffSync - Interní Systém</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-24">
 
-    <!-- LOGIN SCREEN -->
-    <div id="loginScreen" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[100] px-4">
-        <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100 text-center">
-            <span class="text-4xl block mb-2">💼</span>
-            <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-1">StaffSync</h1>
-            <p class="text-sm text-slate-400 mb-6">Zadejte své přístupové heslo</p>
+    <div id="loginScreen" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[100] px-4 transition-opacity duration-500">
+        <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border border-slate-100 text-center transform transition-all">
+            <div class="w-20 h-20 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-6 text-4xl">💼</div>
+            <h1 class="text-3xl font-extrabold text-slate-900 mb-2">StaffSync</h1>
+            <p class="text-slate-400 mb-8">Vítejte zpět! Pro vstup zadejte heslo.</p>
             <form id="loginForm" class="space-y-4">
-                <input type="password" id="loginPassword" placeholder="Heslo (Admin: 6852)" required class="w-full px-4 py-3 border text-center text-lg tracking-widest rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-xl transition shadow">Přihlásit se</button>
-                <p id="loginError" class="text-sm text-rose-500 hidden font-medium">Nesprávné heslo!</p>
+                <input type="password" id="loginPassword" placeholder="Zadejte heslo..." required 
+                    class="w-full px-6 py-4 border-2 border-slate-100 text-center text-2xl tracking-[0.5em] rounded-2xl focus:outline-none focus:border-indigo-500 transition-all">
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl transition shadow-lg active:scale-[0.98]">
+                    Vstoupit do aplikace
+                </button>
+                <p id="loginError" class="text-sm text-rose-500 hidden font-bold animate-bounce">❌ Neplatné heslo</p>
             </form>
         </div>
     </div>
 
-    <!-- MAIN APP PREVIEW (Hidden until login) -->
-    <div id="appContent" class="hidden">
-        <!-- Navbar -->
-        <nav class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-            <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-                <div class="flex items-center gap-3">
-                    <span class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">StaffSync</span>
-                    <span id="roleBadge" class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"></span>
+    <div id="appContent" class="hidden opacity-0 transition-opacity duration-700">
+        <nav class="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <span class="text-2xl font-black text-indigo-600 tracking-tight">StaffSync</span>
+                    <span id="roleBadge" class="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm"></span>
                 </div>
-                <div class="flex items-center gap-3">
-                    <button id="btnReportProblem" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-medium px-4 py-2 rounded-xl transition text-sm flex items-center gap-1.5">
-                        ⚠️ Nahlásit problém
+                <div class="flex items-center gap-2 md:gap-4">
+                    <button id="btnReportProblem" class="text-rose-600 bg-rose-50 hover:bg-rose-100 font-bold px-4 py-2 rounded-xl transition text-xs flex items-center gap-2">
+                        <span>⚠️ Nahlásit</span>
                     </button>
-                    <button id="btnToggleStaffModal" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-xl transition shadow-sm text-sm hidden">
-                        Spravovat zaměstnance
+                    <button id="btnToggleStaffModal" class="hidden bg-slate-900 hover:bg-slate-800 text-white font-bold px-4 py-2 rounded-xl transition text-xs">
+                        Správa týmu
                     </button>
-                    <button id="btnLogout" class="text-slate-400 hover:text-slate-600 font-medium p-2 text-sm">Odhlásit</button>
+                    <button id="btnLogout" class="bg-slate-100 text-slate-600 hover:bg-slate-200 p-2 rounded-xl transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                    </button>
                 </div>
             </div>
         </nav>
 
-        <!-- Obsah plochy -->
-        <main class="max-w-6xl mx-auto px-4 mt-8">
-            <div class="flex justify-between items-center mb-6">
-                <h1 id="viewTitle" class="text-2xl font-bold text-slate-900">Aktuální přehled aktivit</h1>
-                <div id="liveClock" class="text-lg font-semibold bg-slate-200 text-slate-700 px-4 py-1.5 rounded-full shadow-inner">00:00:00</div>
+        <main class="max-w-7xl mx-auto px-4 mt-10">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
+                <div>
+                    <h1 id="viewTitle" class="text-3xl font-black text-slate-900">Přehled</h1>
+                    <p class="text-slate-500 font-medium">Sledujte aktuální dění v reálném čase</p>
+                </div>
+                <div id="liveClock" class="text-xl font-mono font-black bg-white border border-slate-200 text-indigo-600 px-6 py-3 rounded-2xl shadow-sm">00:00:00</div>
             </div>
 
-            <!-- Mřížka s kartami zaměstnanců -->
-            <div id="staffGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <div id="staffGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                </div>
         </main>
 
-        <!-- FLOATING NOTIFICATION BUTTON (CHAT CHIP) -->
-        <button id="btnOpenChat" class="fixed bottom-6 right-6 bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-xl transition-all duration-300 z-40 flex items-center justify-center group hover:scale-105">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-            <span id="chatBadge" class="absolute -top-1 -right-1 bg-rose-500 text-white font-bold text-xs w-5 h-5 rounded-full flex items-center justify-center hidden border-2 border-white">0</span>
+        <button id="btnOpenChat" class="fixed bottom-8 right-8 bg-indigo-600 hover:bg-indigo-700 text-white p-5 rounded-3xl shadow-2xl transition-all z-40 active:scale-90 group">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            <span id="chatBadge" class="absolute -top-2 -right-2 bg-rose-500 text-white font-black text-[10px] w-6 h-6 rounded-full flex items-center justify-center hidden border-4 border-slate-50">0</span>
         </button>
     </div>
 
-    <!-- MODAL 1: Správa zaměstnanců (Pouze Admin) -->
-    <div id="staffModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                <h2 class="text-xl font-bold text-slate-900">Správa zaměstnanců</h2>
-                <button onclick="closeModal('staffModal')" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+    <div id="staffModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
+            <div class="p-8 border-b flex justify-between items-center bg-slate-50/50">
+                <h2 class="text-2xl font-black text-slate-900">Tým</h2>
+                <button onclick="closeModal('staffModal')" class="text-slate-400 hover:text-slate-900 text-3xl font-light">&times;</button>
             </div>
-            <form id="addStaffForm" class="p-6 border-b border-slate-100 grid grid-cols-1 sm:grid-cols-4 gap-3 bg-indigo-50/50">
-                <input type="text" id="staffTitle" placeholder="Titul" class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500">
-                <input type="text" id="staffFirstName" placeholder="Jméno" required class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500">
-                <input type="text" id="staffLastName" placeholder="Příjmení" required class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500">
+            <form id="addStaffForm" class="p-8 border-b grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <input type="text" id="staffTitle" placeholder="Titul" class="px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500">
+                <input type="text" id="staffFirstName" placeholder="Jméno" required class="px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500">
+                <input type="text" id="staffLastName" placeholder="Příjmení" required class="px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500">
                 <div class="flex gap-2">
-                    <input type="text" id="staffPassword" placeholder="Heslo" required class="w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-indigo-500 flex-grow">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 rounded-xl font-medium">+</button>
+                    <input type="text" id="staffPassword" placeholder="Přihlašovací heslo" required class="px-4 py-3 bg-indigo-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 flex-grow font-bold">
+                    <button type="submit" class="bg-indigo-600 text-white px-6 rounded-xl font-black hover:bg-indigo-700 transition">+</button>
                 </div>
             </form>
-            <div id="staffModalList" class="p-6 overflow-y-auto flex-grow space-y-3"></div>
+            <div id="staffModalList" class="p-8 overflow-y-auto space-y-4 hide-scrollbar"></div>
         </div>
     </div>
 
-    <!-- MODAL 2: Úprava rozvrhu (Pouze Admin) -->
-    <div id="scheduleModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+    <div id="scheduleModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-[2rem] shadow-2xl w-full max-w-xl max-h-[85vh] flex flex-col overflow-hidden">
+            <div class="p-8 border-b flex justify-between items-center bg-slate-50/50">
                 <div>
-                    <h2 class="text-xl font-bold text-slate-900">Upravit rozvrh</h2>
-                    <p id="scheduleModalTarget" class="text-sm text-slate-500 font-medium"></p>
+                    <h2 class="text-2xl font-black text-slate-900">Rozvrh</h2>
+                    <p id="scheduleModalTarget" class="text-indigo-600 font-bold"></p>
                 </div>
-                <button onclick="closeModal('scheduleModal')" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+                <button onclick="closeModal('scheduleModal')" class="text-slate-400 hover:text-slate-900 text-3xl font-light">&times;</button>
             </div>
-            <form id="addIntervalForm" class="p-6 border-b border-slate-100 space-y-3 bg-amber-50/30">
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="time" id="intFrom" required class="w-full px-3 py-2 border rounded-xl">
-                    <input type="time" id="intTo" required class="w-full px-3 py-2 border rounded-xl">
+            <form id="addIntervalForm" class="p-8 border-b space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="time" id="intFrom" required class="px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-500">
+                    <input type="time" id="intTo" required class="px-4 py-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-500">
                 </div>
                 <div class="flex gap-2">
-                    <input type="text" id="intSubject" placeholder="Název hodiny / Činnost" required class="w-full px-3 py-2 border rounded-xl flex-grow">
-                    <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-white px-5 rounded-xl font-medium">Přidat</button>
+                    <input type="text" id="intSubject" placeholder="Název hodiny / Činnost" required class="px-4 py-3 bg-amber-50 border-none rounded-xl focus:ring-2 focus:ring-amber-500 flex-grow">
+                    <button type="submit" class="bg-amber-500 text-white px-6 rounded-xl font-black hover:bg-amber-600 transition">Přidat</button>
                 </div>
             </form>
-            <div id="intervalsList" class="p-6 overflow-y-auto flex-grow space-y-2"></div>
+            <div id="intervalsList" class="p-8 overflow-y-auto space-y-3 hide-scrollbar"></div>
         </div>
     </div>
 
-    <!-- MODAL 3: CHAT HUB (Zprávy a Problémy) -->
-    <div id="chatModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl h-[80vh] flex overflow-hidden">
-            <!-- Levý panel konverzací -->
-            <div class="w-1/3 border-r border-slate-100 flex flex-col bg-slate-50">
-                <div class="p-4 border-b border-slate-100 bg-white flex justify-between items-center">
-                    <h2 class="font-bold text-slate-900">Zprávy</h2>
-                    <button id="btnNewChat" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 p-2 rounded-xl text-xs font-semibold transition">💬 Nová</button>
+    <div id="chatModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-5xl h-[85vh] flex overflow-hidden">
+            <div class="w-80 border-r border-slate-100 flex flex-col bg-slate-50/50">
+                <div class="p-6 border-b flex justify-between items-center bg-white">
+                    <h2 class="font-black text-slate-900">Konverzace</h2>
+                    <button id="btnNewChat" class="bg-indigo-600 text-white p-2 rounded-xl hover:bg-indigo-700 transition">💬</button>
                 </div>
-                <div id="chatThreadsList" class="flex-grow overflow-y-auto p-2 space-y-1"></div>
+                <div id="chatThreadsList" class="flex-grow overflow-y-auto p-4 space-y-2 hide-scrollbar"></div>
             </div>
-            <!-- Pravý panel zpráv -->
-            <div id="chatActiveWindow" class="w-2/3 flex flex-col bg-white justify-between hidden relative">
-                <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                    <h3 id="activeChatPartnerName" class="font-semibold text-slate-800">Vyberte konverzaci</h3>
-                    <button onclick="closeModal('chatModal')" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+            <div id="chatActiveWindow" class="flex-grow flex flex-col bg-white hidden">
+                <div class="p-6 border-b flex justify-between items-center bg-slate-50/30">
+                    <h3 id="activeChatPartnerName" class="font-black text-slate-800 text-lg">Chat</h3>
+                    <button onclick="closeModal('chatModal')" class="text-slate-400 text-3xl font-light">&times;</button>
                 </div>
-                <div id="chatMessagesBox" class="flex-grow overflow-y-auto p-4 space-y-3 flex flex-col"></div>
-                <form id="chatSendForm" class="p-4 border-t border-slate-100 flex gap-2">
-                    <input type="text" id="chatInputMessage" placeholder="Napište zprávu..." required class="w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 rounded-xl font-medium">Odeslat</button>
+                <div id="chatMessagesBox" class="flex-grow overflow-y-auto p-8 space-y-4 flex flex-col hide-scrollbar"></div>
+                <form id="chatSendForm" class="p-6 border-t flex gap-3">
+                    <input type="text" id="chatInputMessage" placeholder="Napište zprávu..." required class="flex-grow px-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 font-medium">
+                    <button type="submit" class="bg-indigo-600 text-white px-8 rounded-2xl font-black hover:bg-indigo-700 transition">Odeslat</button>
                 </form>
             </div>
-            <div id="chatEmptyWindow" class="w-2/3 flex items-center justify-center bg-white text-slate-400 text-sm">
-                Vyberte konverzaci vlevo nebo vytvořte novou.
-                <button onclick="closeModal('chatModal')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+            <div id="chatEmptyWindow" class="flex-grow flex flex-col items-center justify-center text-center p-12 bg-white relative">
+                <div class="text-6xl mb-4 opacity-20">📮</div>
+                <p class="text-slate-400 font-bold max-w-xs">Vyberte někoho ze seznamu a začněte si psát.</p>
+                <button onclick="closeModal('chatModal')" class="absolute top-6 right-8 text-slate-400 text-3xl font-light">&times;</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL 4: NOVÝ CHAT (Výběr účtu) -->
     <div id="newChatModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center z-[60] p-4">
-        <div class="bg-white rounded-xl shadow-lg w-full max-w-sm p-6 space-y-4">
-            <h3 class="font-bold text-lg text-slate-900">Napsat někomu</h3>
-            <div>
-                <label class="block text-xs font-medium text-slate-500 mb-1">Vyberte uživatele</label>
-                <select id="newChatUserSelect" class="w-full px-3 py-2 border rounded-xl bg-white"></select>
-            </div>
-            <div class="flex justify-end gap-2 text-sm font-medium">
-                <button onclick="closeModal('newChatModal')" class="px-4 py-2 text-slate-500 hover:bg-slate-50 rounded-xl">Zrušit</button>
-                <button id="btnStartChatConfirm" class="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl">Spustit chat</button>
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm p-8">
+            <h3 class="font-black text-xl text-slate-900 mb-6 text-center">Komu napíšete?</h3>
+            <select id="newChatUserSelect" class="w-full px-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500 mb-6 font-bold text-slate-700 cursor-pointer"></select>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="closeModal('newChatModal')" class="px-4 py-3 text-slate-400 font-bold hover:bg-slate-50 rounded-2xl transition text-sm">Zrušit</button>
+                <button id="btnStartChatConfirm" class="px-4 py-3 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-700 transition shadow-lg text-sm">Začít chat</button>
             </div>
         </div>
     </div>
@@ -157,8 +153,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // Firebase konfigurace (stále tvoje)
         const firebaseConfig = {
             apiKey: "AIzaSyAudOM7Kr2lJuUTVWwpIZ5OULLwWWX0530",
             authDomain: "skola-a77c6.firebaseapp.com",
@@ -171,46 +168,22 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        
-        // Kolekce
         const staffCollection = collection(db, "zamestnanci");
         const messagesCollection = collection(db, "zpravy");
 
-        // Uživatelský kontext
-        let currentUser = null; // 'admin' nebo objekt zaměstnance
+        let currentUser = null;
         let localStaffData = [];
         let localChatsData = [];
         let activeStaffIdForSchedule = null;
         let activeChatThreadId = null;
 
-        // --- AUTH LOGIKA ---
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const pass = document.getElementById('loginPassword').value.trim();
-            const errorEl = document.getElementById('loginError');
-
-            if (pass === "6852") {
-                currentUser = { id: 'admin', name: 'Administrátor', role: 'admin' };
-                initApp();
-            } else {
-                const foundUser = localStaffData.find(u => u.password === pass);
-                if (foundUser) {
-                    currentUser = { id: foundUser.id, name: `${foundUser.firstName} ${foundUser.lastName}`, role: 'staff', data: foundUser };
-                    initApp();
-                } else {
-                    errorEl.classList.remove('hidden');
-                }
-            }
-        });
-
-        document.getElementById('btnLogout').addEventListener('click', () => {
-            location.reload();
-        });
-
-        // Předběžný poslech uživatelů pro validaci hesel hned na začátku
+        // --- PŘÍPRAVA DAT (Načítají se hned po startu) ---
         onSnapshot(staffCollection, (snapshot) => {
             localStaffData = [];
             snapshot.forEach(doc => { localStaffData.push({ id: doc.id, ...doc.data() }); });
+            console.log("Data načtena, počet zaměstnanců:", localStaffData.length);
+            
+            // Pokud jsme už přihlášeni, překresli UI
             if(currentUser) {
                 renderMainGrid();
                 renderModalStaffList();
@@ -218,23 +191,48 @@
             }
         });
 
-        function initApp() {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('appContent').classList.remove('hidden');
+        // --- AUTH ---
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const pass = document.getElementById('loginPassword').value.trim();
+            const errorEl = document.getElementById('loginError');
+
+            if (pass === "6852") {
+                currentUser = { id: 'admin', name: 'Administrátor', role: 'admin' };
+                initAppUI();
+            } else {
+                const foundUser = localStaffData.find(u => u.password === pass);
+                if (foundUser) {
+                    currentUser = { id: foundUser.id, name: `${foundUser.firstName} ${foundUser.lastName}`, role: 'staff', data: foundUser };
+                    initAppUI();
+                } else {
+                    errorEl.classList.remove('hidden');
+                }
+            }
+        });
+
+        function initAppUI() {
+            const loginScreen = document.getElementById('loginScreen');
+            const appContent = document.getElementById('appContent');
+            
+            loginScreen.style.opacity = '0';
+            setTimeout(() => {
+                loginScreen.classList.add('hidden');
+                appContent.classList.remove('hidden');
+                setTimeout(() => { appContent.style.opacity = '1'; }, 50);
+            }, 500);
 
             const badge = document.getElementById('roleBadge');
             if (currentUser.role === 'admin') {
-                badge.innerText = "Admin";
-                badge.classList.add('bg-indigo-100', 'text-indigo-700');
+                badge.innerText = "Admin Account";
+                badge.classList.add('bg-indigo-600', 'text-white');
                 document.getElementById('btnToggleStaffModal').classList.remove('hidden');
-                document.getElementById('viewTitle').innerText = "Všechny aktivity zaměstnanců";
             } else {
-                badge.innerText = "Zaměstnanec";
-                badge.classList.add('bg-emerald-100', 'text-emerald-700');
-                document.getElementById('viewTitle').innerText = `Můj aktuální rozvrh (${currentUser.name})`;
+                badge.innerText = "Team Member";
+                badge.classList.add('bg-emerald-500', 'text-white');
             }
 
-            // Realtime poslech zpráv
+            // Realtime zprávy
             const qMessages = query(messagesCollection, orderBy("timestamp", "asc"));
             onSnapshot(qMessages, (snapshot) => {
                 localChatsData = [];
@@ -248,11 +246,12 @@
             updateSelectUserList();
         }
 
-        // --- HODINY & AKTUALIZACE ČASU ---
+        document.getElementById('btnLogout').addEventListener('click', () => location.reload());
+
+        // --- ČASOVÁ LOGIKA ---
         setInterval(() => {
             const now = new Date();
-            const clockEl = document.getElementById('liveClock');
-            if (clockEl) clockEl.innerText = now.toTimeString().split(' ')[0];
+            document.getElementById('liveClock').innerText = now.toTimeString().split(' ')[0];
             updateStaffStatuses();
         }, 1000);
 
@@ -263,7 +262,7 @@
         }
 
         function getCurrentStatus(intervals) {
-            if (!intervals || intervals.length === 0) return { text: "Volno / Žádný rozvrh", active: false };
+            if (!intervals || intervals.length === 0) return { text: "Volno", active: false };
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
@@ -283,54 +282,45 @@
             if (currentMinutes >= firstStart && currentMinutes < lastEnd) {
                 return { text: "☕ Přestávka", active: false, isBreak: true };
             }
-            return { text: "Mimo pracovní dobu", active: false };
+            return { text: "Domů / Konec", active: false };
         }
 
         // --- RENDEROVÁNÍ PLOCHY ---
         function renderMainGrid() {
             const grid = document.getElementById('staffGrid');
-            let usersToRender = localStaffData;
-
-            // Pokud je přihlášen zaměstnanec, uvidí jen sám sebe
-            if (currentUser && currentUser.role === 'staff') {
-                usersToRender = localStaffData.filter(u => u.id === currentUser.id);
-            }
-
-            if (usersToRender.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 bg-white rounded-2xl border border-dashed border-slate-200">Žádná data k zobrazení.</div>`;
-                return;
-            }
+            let usersToRender = currentUser.role === 'staff' ? localStaffData.filter(u => u.id === currentUser.id) : localStaffData;
 
             grid.innerHTML = usersToRender.map(person => {
                 const status = getCurrentStatus(person.intervals);
-                let statusClass = "bg-slate-100 text-slate-600";
-                if (status.active) statusClass = "bg-emerald-500 text-white animate-pulse";
-                else if (status.isBreak) statusClass = "bg-amber-500 text-white";
+                let statusClass = "bg-slate-100 text-slate-400";
+                if (status.active) statusClass = "bg-emerald-500 text-white shadow-emerald-200 animate-pulse";
+                else if (status.isBreak) statusClass = "bg-amber-500 text-white shadow-amber-200";
 
-                const titleHtml = person.title ? `<span class="text-xs font-semibold bg-slate-200 text-slate-600 px-2 py-0.5 rounded mr-1">${person.title}</span>` : '';
+                const titleHtml = person.title ? `<span class="text-[10px] font-black bg-slate-100 text-slate-500 px-2 py-1 rounded mr-2 uppercase">${person.title}</span>` : '';
+                const sortedInts = person.intervals ? [...person.intervals].sort((a,b) => timeToMinutes(a.from) - timeToMinutes(b.from)) : [];
                 
-                // Vypsání kompletního rozvrhu pod stav
-                const sortedIntervals = person.intervals ? [...person.intervals].sort((a,b) => timeToMinutes(a.from) - timeToMinutes(b.from)) : [];
-                const intervalsHtml = sortedIntervals.map(i => `
-                    <div class="flex justify-between items-center text-xs bg-slate-50 p-2 rounded-lg border border-slate-100">
-                        <span class="font-bold text-slate-500">${i.from} - ${i.to}</span>
-                        <span class="text-slate-700 font-medium">${i.subject}</span>
-                    </div>
-                `).join('') || '<p class="text-slate-400 text-xs italic">Žádné naplánované hodiny</p>';
-
                 return `
-                    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
-                        <div>
-                            <div class="flex items-start justify-between mb-4">
-                                <h3 class="text-lg font-bold text-slate-800">${titleHtml}${person.firstName} ${person.lastName}</h3>
-                                ${currentUser.role === 'admin' ? `<span class="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded font-mono">Klíč: ${person.password}</span>` : ''}
+                    <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col transition hover:scale-[1.02]">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 font-black text-xl">
+                                ${person.firstName[0]}${person.lastName[0]}
                             </div>
-                            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Aktuální stav</div>
-                            <div id="status-text-${person.id}" class="text-base font-semibold px-4 py-3 rounded-xl ${statusClass} transition shadow-inner mb-4">
-                                ${status.text}
+                            <div>
+                                <h3 class="text-xl font-black text-slate-900 leading-tight">${person.firstName} ${person.lastName}</h3>
+                                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">${person.title || 'Člen týmu'}</p>
                             </div>
-                            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Rozvrh dne</div>
-                            <div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">${intervalsHtml}</div>
+                        </div>
+                        <div id="status-text-${person.id}" class="text-center font-black py-4 rounded-2xl ${statusClass} transition-all shadow-lg mb-8 tracking-wide">
+                            ${status.text.toUpperCase()}
+                        </div>
+                        <div class="space-y-2">
+                            <p class="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] mb-3">Dnešní program</p>
+                            ${sortedInts.map(i => `
+                                <div class="flex justify-between items-center text-sm font-bold bg-slate-50/50 p-3 rounded-xl border border-slate-50">
+                                    <span class="text-indigo-600">${i.from} - ${i.to}</span>
+                                    <span class="text-slate-600">${i.subject}</span>
+                                </div>
+                            `).join('') || '<p class="text-slate-300 text-sm italic py-2">Žádný program na dnes</p>'}
                         </div>
                     </div>
                 `;
@@ -342,16 +332,16 @@
                 const statusEl = document.getElementById(`status-text-${person.id}`);
                 if (statusEl) {
                     const status = getCurrentStatus(person.intervals);
-                    statusEl.innerText = status.text;
-                    statusEl.className = "text-base font-semibold px-4 py-3 rounded-xl transition shadow-inner mb-4";
+                    statusEl.innerText = status.text.toUpperCase();
+                    statusEl.className = "text-center font-black py-4 rounded-2xl transition-all shadow-lg mb-8 tracking-wide";
                     if (status.active) statusEl.classList.add("bg-emerald-500", "text-white", "animate-pulse");
                     else if (status.isBreak) statusEl.classList.add("bg-amber-500", "text-white");
-                    else statusEl.classList.add("bg-slate-100", "text-slate-600");
+                    else statusEl.classList.add("bg-slate-100", "text-slate-400");
                 }
             });
         }
 
-        // --- ADMIN: MANAGEMENT ROZVRHŮ A LIDÍ ---
+        // --- MANAGEMENT (ADMIN) ---
         document.getElementById('addStaffForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const title = document.getElementById('staffTitle').value.trim();
@@ -364,9 +354,7 @@
         });
 
         window.deleteStaff = async function(id) {
-            if(confirm("Opravdu smazat účet zaměstnance?")) {
-                await deleteDoc(doc(db, "zamestnanci", id));
-            }
+            if(confirm("Odstranit účet trvale?")) await deleteDoc(doc(db, "zamestnanci", id));
         };
 
         window.openScheduleModal = function(id) {
@@ -380,247 +368,139 @@
             const from = document.getElementById('intFrom').value;
             const to = document.getElementById('intTo').value;
             const subject = document.getElementById('intSubject').value.trim();
-
-            if (timeToMinutes(from) >= timeToMinutes(to)) {
-                alert("Čas Od musí být dříve než Do!"); return;
-            }
+            if (timeToMinutes(from) >= timeToMinutes(to)) return alert("Chybný čas");
 
             const person = localStaffData.find(p => p.id === activeStaffIdForSchedule);
-            const updatedIntervals = [...(person.intervals || []), { from, to, subject }];
-
-            await updateDoc(doc(db, "zamestnanci", activeStaffIdForSchedule), { intervals: updatedIntervals });
+            const updated = [...(person.intervals || []), { from, to, subject }];
+            await updateDoc(doc(db, "zamestnanci", activeStaffIdForSchedule), { intervals: updated });
             document.getElementById('addIntervalForm').reset();
             renderIntervalsList();
         });
 
         window.deleteInterval = async function(index) {
             const person = localStaffData.find(p => p.id === activeStaffIdForSchedule);
-            let currentIntervals = [...(person.intervals || [])];
-            currentIntervals.splice(index, 1);
-
-            await updateDoc(doc(db, "zamestnanci", activeStaffIdForSchedule), { intervals: currentIntervals });
+            let ints = [...(person.intervals || [])];
+            ints.splice(index, 1);
+            await updateDoc(doc(db, "zamestnanci", activeStaffIdForSchedule), { intervals: ints });
             renderIntervalsList();
         };
 
         function renderIntervalsList() {
-            const person = localStaffData.find(p => p.id === activeStaffIdForSchedule);
-            if (!person) return;
-            document.getElementById('scheduleModalTarget').innerText = `${person.firstName} ${person.lastName}`;
-            const intervals = person.intervals || [];
-            intervals.sort((a,b) => timeToMinutes(a.from) - timeToMinutes(b.from));
-
-            document.getElementById('intervalsList').innerHTML = intervals.map((int, idx) => `
-                <div class="flex items-center justify-between bg-slate-50 border p-3 rounded-xl">
-                    <div class="flex items-center gap-2">
-                        <span class="bg-indigo-100 text-indigo-700 font-bold px-2 py-1 rounded text-xs">${int.from} - ${int.to}</span>
-                        <span class="font-semibold text-slate-700">${int.subject}</span>
-                    </div>
-                    <button onclick="deleteInterval(${idx})" class="text-rose-500 font-bold text-lg px-2">&times;</button>
+            const p = localStaffData.find(p => p.id === activeStaffIdForSchedule);
+            document.getElementById('scheduleModalTarget').innerText = `${p.firstName} ${p.lastName}`;
+            const sorted = [...(p.intervals || [])].sort((a,b) => timeToMinutes(a.from) - timeToMinutes(b.from));
+            document.getElementById('intervalsList').innerHTML = sorted.map((int, idx) => `
+                <div class="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <span class="font-bold text-indigo-600">${int.from} - ${int.to} | ${int.subject}</span>
+                    <button onclick="deleteInterval(${idx})" class="text-rose-500 font-black">SMAZAT</button>
                 </div>
-            `).join('') || '<p class="text-slate-400 text-center py-4 text-sm">Žádné úseky.</p>';
+            `).join('');
         }
 
         function renderModalStaffList() {
             document.getElementById('staffModalList').innerHTML = localStaffData.map(person => `
-                <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border">
-                    <span class="font-medium">${person.title ? person.title + ' ' : ''}${person.firstName} ${person.lastName}</span>
+                <div class="flex items-center justify-between bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+                    <span class="font-black">${person.firstName} ${person.lastName}</span>
                     <div class="flex gap-2">
-                        <button onclick="openScheduleModal('${person.id}')" class="bg-amber-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium">✏️ Rozvrh</button>
-                        <button onclick="deleteStaff('${person.id}')" class="bg-rose-500 text-white text-xs px-3 py-1.5 rounded-lg font-medium">Smazat</button>
+                        <button onclick="openScheduleModal('${person.id}')" class="bg-amber-500 text-white text-[10px] px-4 py-2 rounded-xl font-black">ROZVRH</button>
+                        <button onclick="deleteStaff('${person.id}')" class="bg-rose-500 text-white text-[10px] px-4 py-2 rounded-xl font-black">SMAZAT</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        // --- INTERNÍ CHAT & SYSTÉM HLÁŠENÍ ---
-        
-        // Aktualizace nabídky uživatelů při psaní nové zprávy
+        // --- CHAT LOGIKA ---
         function updateSelectUserList() {
-            const select = document.getElementById('newChatUserSelect');
-            let options = [];
-            if(currentUser && currentUser.role === 'staff') {
-                options.push({ id: 'admin', name: '👑 Administrátor' });
-                localStaffData.filter(u => u.id !== currentUser.id).forEach(u => {
-                    options.push({ id: u.id, name: `${u.firstName} ${u.lastName}` });
-                });
-            } else if (currentUser && currentUser.role === 'admin') {
-                localStaffData.forEach(u => {
-                    options.push({ id: u.id, name: `${u.firstName} ${u.lastName}` });
-                });
+            const sel = document.getElementById('newChatUserSelect');
+            let opts = [];
+            if(currentUser.role === 'staff') {
+                opts.push({id: 'admin', name: '👑 Administrátor'});
+                localStaffData.filter(u => u.id !== currentUser.id).forEach(u => opts.push({id: u.id, name: `${u.firstName} ${u.lastName}`}));
+            } else {
+                localStaffData.forEach(u => opts.push({id: u.id, name: `${u.firstName} ${u.lastName}`}));
             }
-            select.innerHTML = options.map(o => `<option value="${o.id}">${o.name}</option>`).join('');
+            sel.innerHTML = opts.map(o => `<option value="${o.id}">${o.name}</option>`).join('');
         }
 
-        // Nahlášení problému (Rychlé odeslání zprávy adminovi)
         document.getElementById('btnReportProblem').addEventListener('click', async () => {
-            const reportText = prompt("Popište problém, který chcete nahlásit administrátorovi:");
-            if(!reportText || !reportText.trim()) return;
-
-            await addDoc(messagesCollection, {
-                senderId: currentUser.id,
-                senderName: currentUser.name,
-                receiverId: 'admin',
-                receiverName: 'Administrátor',
-                text: `⚠️ [HLÁŠENÍ PROBLÉMU]: ${reportText.trim()}`,
-                timestamp: Date.now(),
-                readBy: [currentUser.id]
-            });
-            alert("Problém byl úspěšně nahlášen!");
+            const txt = prompt("Co chcete nahlásit?");
+            if(!txt) return;
+            await addDoc(messagesCollection, { senderId: currentUser.id, senderName: currentUser.name, receiverId: 'admin', receiverName: 'Administrátor', text: `⚠️ HLÁŠENÍ: ${txt}`, timestamp: Date.now(), readBy: [currentUser.id] });
+            alert("Nahlášeno.");
         });
 
-        // Vykreslení seznamu aktivních chatovacích vláken (vlevo v modálu)
-        function renderChatThreads() {
-            const container = document.getElementById('chatThreadsList');
-            
-            // Seskupení unikátních konverzací
-            const threadsMap = {};
-            localChatsData.forEach(msg => {
-                if (msg.senderId === currentUser.id || msg.receiverId === currentUser.id) {
-                    const partnerId = msg.senderId === currentUser.id ? msg.receiverId : msg.senderId;
-                    const partnerName = msg.senderId === currentUser.id ? msg.receiverName : msg.senderName;
-                    
-                    if (!threadsMap[partnerId] || threadsMap[partnerId].timestamp < msg.timestamp) {
-                        const isUnread = !msg.readBy || !msg.readBy.includes(currentUser.id);
-                        threadsMap[partnerId] = {
-                            partnerId,
-                            partnerName,
-                            lastText: msg.text,
-                            timestamp: msg.timestamp,
-                            unread: isUnread
-                        };
-                    } else if (!msg.readBy || !msg.readBy.includes(currentUser.id)) {
-                        threadsMap[partnerId].unread = true;
-                    }
-                }
-            });
-
-            const sortedThreads = Object.values(threadsMap).sort((a,b) => b.timestamp - a.timestamp);
-
-            container.innerHTML = sortedThreads.map(t => {
-                const activeClass = activeChatThreadId === t.partnerId ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-transparent hover:bg-slate-100';
-                const unreadDot = t.unread ? '<span class="w-2.5 h-2.5 bg-rose-500 rounded-full inline-block shrink-0"></span>' : '';
-                return `
-                    <div onclick="openChatThread('${t.partnerId}', '${t.partnerName}')" class="p-3 rounded-xl border flex items-center justify-between cursor-pointer transition ${activeClass}">
-                        <div class="overflow-hidden pr-2">
-                            <p class="font-semibold text-sm text-slate-800 truncate">${t.partnerName}</p>
-                            <p class="text-xs text-slate-400 truncate mt-0.5">${t.lastText}</p>
-                        </div>
-                        ${unreadDot}
-                    </div>
-                `;
-            }).join('') || '<p class="text-xs text-slate-400 text-center py-6">Žádné konverzace</p>';
-        }
-
-        // Otevření okna s konkrétními zprávami
         window.openChatThread = async function(partnerId, partnerName) {
             activeChatThreadId = partnerId;
             document.getElementById('chatEmptyWindow').classList.add('hidden');
-            const activeWindow = document.getElementById('chatActiveWindow');
-            activeWindow.classList.remove('hidden');
+            document.getElementById('chatActiveWindow').classList.remove('hidden');
             document.getElementById('activeChatPartnerName').innerText = partnerName;
-
             renderMessages(partnerId);
 
-            // Označit zprávy od tohoto uživatele za přečtené
             localChatsData.forEach(async (msg) => {
-                if(msg.senderId === partnerId && msg.receiverId === currentUser.id) {
-                    if(!msg.readBy || !msg.readBy.includes(currentUser.id)) {
-                        const updatedRead = [...(msg.readBy || []), currentUser.id];
-                        await updateDoc(doc(db, "zpravy", msg.id), { readBy: updatedRead });
-                    }
+                if(msg.senderId === partnerId && msg.receiverId === currentUser.id && (!msg.readBy || !msg.readBy.includes(currentUser.id))) {
+                    await updateDoc(doc(db, "zpravy", msg.id), { readBy: [...(msg.readBy || []), currentUser.id] });
                 }
             });
         };
 
-        // Vykreslení zpráv v aktivním okně
         function renderMessages(partnerId) {
             const box = document.getElementById('chatMessagesBox');
-            const filtered = localChatsData.filter(msg => 
-                (msg.senderId === currentUser.id && msg.receiverId === partnerId) || 
-                (msg.senderId === partnerId && msg.receiverId === currentUser.id)
-            );
-
-            box.innerHTML = filtered.map(msg => {
-                const isMe = msg.senderId === currentUser.id;
-                const bubbleClass = isMe ? 'bg-indigo-600 text-white self-end rounded-br-none' : 'bg-slate-100 text-slate-800 self-start rounded-bl-none';
-                return `
-                    <div class="max-w-[80%] p-3 rounded-2xl text-sm font-medium shadow-sm ${bubbleClass}">
-                        <p class="text-[10px] opacity-60 mb-0.5">${msg.senderName}</p>
-                        <p class="break-words">${msg.text}</p>
-                    </div>
-                `;
+            const msgs = localChatsData.filter(m => (m.senderId === currentUser.id && m.receiverId === partnerId) || (m.senderId === partnerId && m.receiverId === currentUser.id));
+            box.innerHTML = msgs.map(m => {
+                const isMe = m.senderId === currentUser.id;
+                return `<div class="max-w-[80%] p-4 rounded-2xl text-sm font-bold shadow-sm ${isMe ? 'bg-indigo-600 text-white self-end rounded-br-none' : 'bg-slate-100 text-slate-800 self-start rounded-bl-none'}">
+                    <p class="text-[8px] opacity-50 mb-1 uppercase">${m.senderName}</p><p>${m.text}</p>
+                </div>`;
             }).join('');
-            box.scrollTop = box.scrollHeight; // Autoscroll dolů
+            box.scrollTop = box.scrollHeight;
         }
 
-        // Odeslání zprávy z chatu
-        document.getElementById('chatSendForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const input = document.getElementById('chatInputMessage');
-            const msgText = input.value.trim();
-            if(!msgText || !activeChatThreadId) return;
-
-            let partnerName = document.getElementById('activeChatPartnerName').innerText;
-
-            await addDoc(messagesCollection, {
-                senderId: currentUser.id,
-                senderName: currentUser.name,
-                receiverId: activeChatThreadId,
-                receiverName: partnerName,
-                text: msgText,
-                timestamp: Date.now(),
-                readBy: [currentUser.id]
-            });
-
-            input.value = '';
-        });
-
-        // Aktualizace počtu nepřečtených chatů na plovoucím tlačítku (Badge)
-        function updateChatBadge() {
-            let unreadCount = 0;
-            const uniquePartners = new Set();
-
-            localChatsData.forEach(msg => {
-                if(msg.receiverId === currentUser.id) {
-                    if(!msg.readBy || !msg.readBy.includes(currentUser.id)) {
-                        uniquePartners.add(msg.senderId);
+        function renderChatThreads() {
+            const container = document.getElementById('chatThreadsList');
+            const threads = {};
+            localChatsData.forEach(m => {
+                if(m.senderId === currentUser.id || m.receiverId === currentUser.id) {
+                    const pId = m.senderId === currentUser.id ? m.receiverId : m.senderId;
+                    const pName = m.senderId === currentUser.id ? m.receiverName : m.senderName;
+                    if(!threads[pId] || threads[pId].timestamp < m.timestamp) {
+                        threads[pId] = { id: pId, name: pName, text: m.text, timestamp: m.timestamp, unread: (!m.readBy || !m.readBy.includes(currentUser.id)) && m.receiverId === currentUser.id };
+                    } else if(m.receiverId === currentUser.id && (!m.readBy || !m.readBy.includes(currentUser.id))) {
+                        threads[pId].unread = true;
                     }
                 }
             });
-
-            unreadCount = uniquePartners.size;
-            const badge = document.getElementById('chatBadge');
-            if(unreadCount > 0) {
-                badge.innerText = unreadCount;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
+            container.innerHTML = Object.values(threads).sort((a,b) => b.timestamp - a.timestamp).map(t => `
+                <div onclick="openChatThread('${t.id}', '${t.name}')" class="p-4 rounded-2xl border cursor-pointer transition flex items-center justify-between ${activeChatThreadId === t.id ? 'bg-indigo-50 border-indigo-200' : 'bg-white border-transparent hover:bg-slate-100'}">
+                    <div class="overflow-hidden"><p class="font-black text-sm text-slate-800 truncate">${t.name}</p><p class="text-[10px] text-slate-400 truncate font-bold">${t.text}</p></div>
+                    ${t.unread ? '<span class="w-3 h-3 bg-rose-500 rounded-full animate-pulse shadow-lg shadow-rose-200"></span>' : ''}
+                </div>
+            `).join('');
         }
 
-        // Inicializace zahájení nového chatu
-        document.getElementById('btnNewChat').addEventListener('click', () => {
-            document.getElementById('newChatModal').classList.remove('hidden');
+        document.getElementById('chatSendForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const inp = document.getElementById('chatInputMessage');
+            if(!inp.value.trim() || !activeChatThreadId) return;
+            await addDoc(messagesCollection, { senderId: currentUser.id, senderName: currentUser.name, receiverId: activeChatThreadId, receiverName: document.getElementById('activeChatPartnerName').innerText, text: inp.value.trim(), timestamp: Date.now(), readBy: [currentUser.id] });
+            inp.value = '';
         });
+
+        function updateChatBadge() {
+            const badge = document.getElementById('chatBadge');
+            const unread = new Set(localChatsData.filter(m => m.receiverId === currentUser.id && (!m.readBy || !m.readBy.includes(currentUser.id))).map(m => m.senderId)).size;
+            badge.innerText = unread;
+            unread > 0 ? badge.classList.remove('hidden') : badge.classList.add('hidden');
+        }
 
         document.getElementById('btnStartChatConfirm').addEventListener('click', () => {
-            const select = document.getElementById('newChatUserSelect');
-            const targetId = select.value;
-            const targetName = select.options[select.selectedIndex].text;
-            
-            document.getElementById('newChatModal').classList.add('hidden');
-            openChatThread(targetId, targetName);
+            const sel = document.getElementById('newChatUserSelect');
+            closeModal('newChatModal');
+            openChatThread(sel.value, sel.options[sel.selectedIndex].text);
         });
 
-        // Otevírání oken
-        document.getElementById('btnToggleStaffModal').addEventListener('click', () => document.getElementById('staffModal').classList.remove('hidden'));
+        document.getElementById('btnNewChat').addEventListener('click', () => document.getElementById('newChatModal').classList.remove('hidden'));
         document.getElementById('btnOpenChat').addEventListener('click', () => document.getElementById('chatModal').classList.remove('hidden'));
-
-        // Globální zavírač modálů
-        window.closeModal = function(id) {
-            document.getElementById(id).classList.add('hidden');
-            if(id === 'chatModal') activeChatThreadId = null;
-        };
+        window.closeModal = (id) => { document.getElementById(id).classList.add('hidden'); if(id === 'chatModal') activeChatThreadId = null; };
     </script>
 </body>
 </html>
